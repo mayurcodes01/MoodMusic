@@ -4,6 +4,7 @@ import os
 
 # ---------------- CONFIG ----------------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
 GEMINI_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/"
     "gemini-1.5-flash:generateContent"
@@ -23,14 +24,14 @@ st.write("Choose your mood and language. I’ll suggest songs just for you.")
 st.subheader("1️⃣ Choose your mood")
 
 moods = [
-    "Happy 😊",
-    "Romantic ❤️",
-    "Sad 😔",
-    "Chill 🌙",
-    "Energetic ⚡",
-    "Motivational 🔥",
-    "Heartbreak 💔",
-    "Peaceful 🌸"
+    "Happy",
+    "Romantic",
+    "Sad",
+    "Chill",
+    "Energetic",
+    "Motivational",
+    "Heartbreak",
+    "Peaceful"
 ]
 
 selected_mood = st.radio("", moods, horizontal=True)
@@ -43,25 +44,22 @@ language = st.selectbox(
     ["Hindi", "Marathi", "English"]
 )
 
-# ---------------- BUTTON ----------------
-st.subheader("3️⃣ Get Recommendations")
-
+# ---------------- FUNCTION ----------------
 def get_songs(mood, language):
     prompt = f"""
-    Suggest 5 {language} songs for the mood "{mood}".
+Recommend exactly 5 songs.
 
-    For each song, provide:
-    - Song name
-    - Singer
-    - YouTube search link
+Mood: {mood}
+Language: {language}
 
-    Format strictly like this:
+For each song, respond ONLY in this format:
 
-    1. Song Name - Singer
-       YouTube: link
+Song: <song name>
+Singer: <singer name>
+YouTube: https://www.youtube.com/results?search_query=<song+name+singer>
 
-    Keep it clean and simple.
-    """
+Do not add any extra text.
+"""
 
     payload = {
         "contents": [
@@ -73,30 +71,32 @@ def get_songs(mood, language):
         ]
     }
 
-    headers = {
-        "Content-Type": "application/json"
-    }
+    try:
+        response = requests.post(
+            f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+            json=payload,
+            timeout=30
+        )
 
-    response = requests.post(
-        f"{GEMINI_URL}?key={GEMINI_API_KEY}",
-        headers=headers,
-        json=payload,
-        timeout=30
-    )
+        response.raise_for_status()
+        data = response.json()
 
-    response.raise_for_status()
-    data = response.json()
+        # Safe parsing
+        return data["candidates"][0]["content"]["parts"][0]["text"]
 
-    return data["candidates"][0]["content"]["parts"][0]["text"]
+    except requests.exceptions.RequestException as e:
+        return f"API Error: {e}"
+    except (KeyError, IndexError):
+        return "No recommendations found. Try another mood."
+
+# ---------------- BUTTON ----------------
+st.subheader("3️⃣ Get Recommendations")
 
 if st.button("🎶 Recommend Songs"):
     if not GEMINI_API_KEY:
-        st.error("Gemini API key not found.")
+        st.error("Gemini API key not found. Please set GEMINI_API_KEY.")
     else:
         with st.spinner("Finding the perfect songs..."):
-            try:
-                result = get_songs(selected_mood, language)
-                st.success("Here you go 🎧")
-                st.markdown(result)
-            except Exception as e:
-                st.error("Something went wrong. Please try again.")
+            result = get_songs(selected_mood, language)
+            st.success("Here you go 🎧")
+            st.markdown(result)
