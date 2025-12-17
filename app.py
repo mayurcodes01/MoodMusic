@@ -4,10 +4,8 @@ import os
 
 # ---------------- CONFIG ----------------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_URL = (
-    "https://generativelanguage.googleapis.com/v1beta/models/"
-    "gemini-1.0-pro:generateContent"
-)
+MODEL = "gemini-pro"
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1/models/{MODEL}:generateContent"
 
 
 # ---------------- UI ----------------
