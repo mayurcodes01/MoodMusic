@@ -1,12 +1,15 @@
 import streamlit as st
-import requests
 import os
+import google.generativeai as genai
+from dotenv import load_dotenv
 
-# ---------------- CONFIG ----------------
+# Load environment variables
+load_dotenv()
+
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=GEMINI_API_KEY)
 
-MODEL = "gemini-1.5-flash"
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1/models/{MODEL}:generateContent"
+MODEL = genai.GenerativeModel("gemini-1.5-flash")  # SDK model
 
 # ---------------- UI ----------------
 st.set_page_config(
@@ -20,7 +23,6 @@ st.write("Choose your mood and language. I’ll suggest songs just for you.")
 
 # ---------------- MOODS ----------------
 st.subheader("1️⃣ Choose your mood")
-
 moods = [
     "Happy",
     "Romantic",
@@ -31,16 +33,11 @@ moods = [
     "Heartbreak",
     "Peaceful"
 ]
-
 selected_mood = st.radio("", moods, horizontal=True)
 
 # ---------------- LANGUAGE ----------------
 st.subheader("2️⃣ Choose language")
-
-language = st.selectbox(
-    "",
-    ["Hindi", "Marathi", "English"]
-)
+language = st.selectbox("", ["Hindi", "Marathi", "English"])
 
 # ---------------- FUNCTION ----------------
 def get_songs(mood, language):
@@ -56,44 +53,18 @@ Song: <song name>
 Singer: <singer name>
 YouTube: https://www.youtube.com/results?search_query=<song+name+singer>
 """
-
-    payload = {
-    "contents": [
-        {
-            "role": "user",
-            "parts": [
-                {"text": prompt}
-            ]
-        }
-    ]
-}
-
-
-    headers = {
-        "Content-Type": "application/json"
-    }
-
-    response = requests.post(
-    f"{GEMINI_URL}?key={GEMINI_API_KEY}",
-    headers={"Content-Type": "application/json"},
-    json=payload,
-    timeout=30
-)
-
-
-    if response.status_code != 200:
-        return f"API Error {response.status_code}: {response.text}"
-
-    data = response.json()
-
     try:
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-    except (KeyError, IndexError):
-        return "No recommendations found. Try another mood."
+        response = MODEL.generate_content(
+            prompt=prompt,
+            temperature=0.7,
+            max_output_tokens=500
+        )
+        return response.text
+    except Exception as e:
+        return f"Error generating songs: {e}"
 
 # ---------------- BUTTON ----------------
 st.subheader("3️⃣ Get Recommendations")
-
 if st.button("🎶 Recommend Songs"):
     if not GEMINI_API_KEY:
         st.error("Gemini API key not found. Please set GEMINI_API_KEY.")
