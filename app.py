@@ -54,8 +54,9 @@ Singer: <singer name>
 YouTube: https://www.youtube.com/results?search_query=<song+name+singer>
 """
     try:
+        # Correct usage: use messages instead of prompt
         response = MODEL.generate_content(
-            prompt=prompt,
+            messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
             max_output_tokens=500
         )
