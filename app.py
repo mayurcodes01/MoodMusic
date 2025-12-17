@@ -5,11 +5,10 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key=GEMINI_API_KEY)
 
-MODEL = genai.GenerativeModel("gemini-1.5-flash")  # SDK model
+# Configure Gemini SDK
+genai.configure(api_key=GEMINI_API_KEY)
 
 # ---------------- UI ----------------
 st.set_page_config(
@@ -54,9 +53,10 @@ Singer: <singer name>
 YouTube: https://www.youtube.com/results?search_query=<song+name+singer>
 """
     try:
-        # Correct usage: use messages instead of prompt
-        response = MODEL.generate_content(
-            messages=[{"role": "user", "content": prompt}],
+        # Correct usage: genai.generate_text
+        response = genai.generate_text(
+            model="gemini-1.5-flash",
+            prompt=prompt,
             temperature=0.7,
             max_output_tokens=500
         )
