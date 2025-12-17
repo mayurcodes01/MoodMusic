@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
-# Configure Gemini SDK
 genai.configure(api_key=GEMINI_API_KEY)
 
 # ---------------- UI ----------------
@@ -53,14 +51,17 @@ Singer: <singer name>
 YouTube: https://www.youtube.com/results?search_query=<song+name+singer>
 """
     try:
-        # Correct usage: genai.generate_text
-        response = genai.generate_text(
-            model="gemini-1.5-flash",
-            prompt=prompt,
+        # Use the current Gemini SDK method
+        response = genai.chat.completions.create(
+            model="gemini-1.5-chat",
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
             temperature=0.7,
             max_output_tokens=500
         )
-        return response.text
+        # The text is in response.choices[0].message.content
+        return response.choices[0].message.content
     except Exception as e:
         return f"Error generating songs: {e}"
 
