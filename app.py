@@ -13,16 +13,16 @@ client = genai.Client(api_key=GEMINI_API_KEY)
 
 # ---------------- UI ----------------
 st.set_page_config(
-    page_title="Mood Music Recommender 🎵",
-    page_icon="🎧",
+    page_title="Mood Music Recommender ",
+    page_icon="",
     layout="centered"
 )
 
-st.title("🎵 Mood Based Music Recommendation")
+st.title(" Mood Based Music Recommendation")
 st.write("Choose your mood and language. I’ll suggest songs just for you.")
 
 # ---------------- MOODS ----------------
-st.subheader("1️⃣ Choose your mood")
+st.subheader("1️ Choose your mood")
 moods = [
     "Happy",
     "Romantic",
@@ -36,7 +36,7 @@ moods = [
 selected_mood = st.radio("", moods, horizontal=True)
 
 # ---------------- LANGUAGE ----------------
-st.subheader("2️⃣ Choose language")
+st.subheader("2️ Choose language")
 language = st.selectbox("", ["Hindi", "Marathi", "English"])
 
 def get_songs(mood, language):
@@ -64,12 +64,12 @@ def get_songs(mood, language):
         return f"Error generating songs: {e}"
 
 # ---------------- BUTTON ----------------
-st.subheader("3️⃣ Get Recommendations")
-if st.button("🎶 Recommend Songs"):
+st.subheader("3️. Get Recommendations")
+if st.button(" Recommend Songs"):
     if not GEMINI_API_KEY:
         st.error("Gemini API key not found. Please set GEMINI_API_KEY.")
     else:
         with st.spinner("Finding the perfect songs..."):
             result = get_songs(selected_mood, language)
-            st.success("Here you go 🎧")
+            st.success("Here you go ...")
             st.markdown(result)
