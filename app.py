@@ -4,9 +4,9 @@ import os
 
 # ---------------- CONFIG ----------------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
 MODEL = "gemini-pro"
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1/models/{MODEL}:generateContent"
-
 
 # ---------------- UI ----------------
 st.set_page_config(
@@ -50,40 +50,40 @@ Recommend exactly 5 songs.
 Mood: {mood}
 Language: {language}
 
-For each song, respond ONLY in this format:
+Return ONLY in this format:
 
 Song: <song name>
 Singer: <singer name>
 YouTube: https://www.youtube.com/results?search_query=<song+name+singer>
-
-Do not add any extra text.
 """
 
     payload = {
         "contents": [
             {
-                "parts": [
-                    {"text": prompt}
-                ]
+                "role": "user",
+                "parts": [{"text": prompt}]
             }
         ]
     }
 
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    response = requests.post(
+        f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+        headers=headers,
+        json=payload,
+        timeout=30
+    )
+
+    if response.status_code != 200:
+        return f"API Error {response.status_code}: {response.text}"
+
+    data = response.json()
+
     try:
-        response = requests.post(
-            f"{GEMINI_URL}?key={GEMINI_API_KEY}",
-            json=payload,
-            timeout=30
-        )
-
-        response.raise_for_status()
-        data = response.json()
-
-        # Safe parsing
         return data["candidates"][0]["content"]["parts"][0]["text"]
-
-    except requests.exceptions.RequestException as e:
-        return f"API Error: {e}"
     except (KeyError, IndexError):
         return "No recommendations found. Try another mood."
 
