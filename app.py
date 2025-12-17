@@ -4,11 +4,11 @@ import os
 
 # ---------------- CONFIG ----------------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
 GEMINI_URL = (
     "https://generativelanguage.googleapis.com/v1beta/models/"
-    "gemini-1.5-flash:generateContent"
+    "gemini-1.0-pro:generateContent"
 )
+
 
 # ---------------- UI ----------------
 st.set_page_config(
