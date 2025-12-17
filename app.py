@@ -5,7 +5,7 @@ import os
 # ---------------- CONFIG ----------------
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-MODEL = "gemini-pro"
+MODEL = "gemini-1.5-flash"
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1/models/{MODEL}:generateContent"
 
 # ---------------- UI ----------------
@@ -58,24 +58,28 @@ YouTube: https://www.youtube.com/results?search_query=<song+name+singer>
 """
 
     payload = {
-        "contents": [
-            {
-                "role": "user",
-                "parts": [{"text": prompt}]
-            }
-        ]
-    }
+    "contents": [
+        {
+            "role": "user",
+            "parts": [
+                {"text": prompt}
+            ]
+        }
+    ]
+}
+
 
     headers = {
         "Content-Type": "application/json"
     }
 
     response = requests.post(
-        f"{GEMINI_URL}?key={GEMINI_API_KEY}",
-        headers=headers,
-        json=payload,
-        timeout=30
-    )
+    f"{GEMINI_URL}?key={GEMINI_API_KEY}",
+    headers={"Content-Type": "application/json"},
+    json=payload,
+    timeout=30
+)
+
 
     if response.status_code != 200:
         return f"API Error {response.status_code}: {response.text}"
